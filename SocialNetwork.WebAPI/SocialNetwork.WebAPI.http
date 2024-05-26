@@ -1,0 +1,6 @@
+@SocialNetwork.WebAPI_HostAddress = http://localhost:5010
+
+GET {{SocialNetwork.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
