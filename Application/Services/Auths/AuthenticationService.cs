@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
 using SocialNetwork.Application.Repositories;
 using SocialNetwork.Application.Services.Auths.DTOs;
 using SocialNetwork.Application.Services.Auths.Jwt;
@@ -34,14 +35,15 @@ namespace SocialNetwork.Application.Services.Auths
                         Errors = new List<string> { "Passwords is incorrect" }
                     };
                 }
-                LoginResponse userResponse = _mapper.Map<LoginResponse>(currentUser);
-                userResponse.Token = _jwtFactory.GenerateToken(currentUser);
+                LoginResponse loginResponse = _mapper.Map<LoginResponse>(currentUser);
+                loginResponse.AccessToken = _jwtFactory.GenerateToken(currentUser, 1);
+                loginResponse.RefreshToken = _jwtFactory.GenerateToken(currentUser, 10);
 
                 return new ApiResponse<LoginResponse>
                 {
                     Code = 200,
                     Message = "OK",
-                    Data = userResponse
+                    Data = loginResponse
                 };
             }
             catch (Exception ex)
@@ -54,7 +56,63 @@ namespace SocialNetwork.Application.Services.Auths
                 };
             }
         }
+        public async Task<ApiResponse<RefreshTokenDto>> Refresh(RefreshTokenDto refreshToken)
+        {
+            try
+            {
+                var refreshTokenPayload = _jwtFactory.VerifyToken(refreshToken.Token);
+                if (refreshTokenPayload == null || !refreshTokenPayload.ContainsKey("Id"))
+                {
+                    return new ApiResponse<RefreshTokenDto>
+                    {
+                        Code = 401,
+                        Message = "Invalid refresh token",
+                        Errors = new List<string> { "Invalid refresh token" }
+                    };
+                }
+                var userId = refreshTokenPayload["Id"].ToString();
 
+                var currentUser = await _userRepository.GetAsync(Guid.Parse(userId));
+                if (currentUser == null)
+                {
+                    return new ApiResponse<RefreshTokenDto>
+                    {
+                        Code = 404,
+                        Message = "User not found",
+                        Errors = new List<string> { "User not found" }
+                    };
+                }
+
+                var token = _jwtFactory.GenerateToken(currentUser, 10);
+
+                var responeToken = new RefreshTokenDto(token);
+
+                return new ApiResponse<RefreshTokenDto>
+                {
+                    Code = 200,
+                    Message = "OK",
+                    Data = responeToken
+                };
+            }
+            catch (SecurityTokenException ex)
+            {
+                return new ApiResponse<RefreshTokenDto>
+                {
+                    Code = 401,
+                    Message = "Invalid token",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<RefreshTokenDto>
+                {
+                    Code = 500,
+                    Message = "An error occurred while processing the request",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
         public async Task<ApiResponse<RegisterResponse>> Register(RegisterRequest registerRequest)
         {
             try

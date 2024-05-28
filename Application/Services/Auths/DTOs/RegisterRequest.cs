@@ -11,12 +11,13 @@ namespace SocialNetwork.Application.Services.Auths.DTOs
         public string FirstName { get; }
         public string LastName { get; }
         public string MiddleName { get; }
+        public int Gender { get; }
         public string Email { get; }
         public string Phone {  get; }
         public string Password { get; }
         public string PasswordConfirm { get; }
 
-        public RegisterRequest(string firstName, string lastName, string middleName, string email, string phone, string password, string passwordConfirm)
+        public RegisterRequest(string firstName, string lastName, string middleName, string email, string phone, string password, string passwordConfirm, int gender)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -25,6 +26,7 @@ namespace SocialNetwork.Application.Services.Auths.DTOs
             MiddleName = middleName;
             Password = password;
             PasswordConfirm = passwordConfirm;
+            Gender = gender;
         }
     }
 }

@@ -9,6 +9,7 @@ namespace SocialNetwork.Application.Services.Auths.Jwt
 {
     public interface IJwtFactory
     {
-        string GenerateToken(User user);
+        string GenerateToken(User user, int expireDay);
+        IDictionary<string, object> VerifyToken(string token);
     }
 }

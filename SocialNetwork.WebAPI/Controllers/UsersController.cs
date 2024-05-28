@@ -32,5 +32,14 @@ namespace SocialNetwork.WebAPI.Controllers
                 StatusCode = result.Code
             };
         }
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(RefreshTokenDto refreshToken)
+        {
+            var result = await _authService.Refresh(refreshToken);
+            return new ObjectResult(result)
+            {
+                StatusCode = result.Code
+            };
+        }
     }
 }

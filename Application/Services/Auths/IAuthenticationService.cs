@@ -6,5 +6,6 @@ namespace SocialNetwork.Application.Services.Auths
     {
         Task<ApiResponse<RegisterResponse>> Register(RegisterRequest registerRequest);
         Task<ApiResponse<LoginResponse>> Login(LoginRequest loginRequest);
+        Task<ApiResponse<RefreshTokenDto>> Refresh(RefreshTokenDto refreshToken);
     }
 }
